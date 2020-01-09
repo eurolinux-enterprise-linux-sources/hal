@@ -25,7 +25,7 @@
 Summary: Hardware Abstraction Layer
 Name: hal
 Version: 0.5.14
-Release: 8%{?dist}
+Release: 11%{?dist}
 URL: http://www.freedesktop.org/Software/hal
 Source0: http://hal.freedesktop.org/releases/%{name}-%{version}.tar.bz2
 
@@ -72,6 +72,12 @@ Patch16: hal-0.5.15-make-initscript-lsb-compliant.patch
 # including temporary cryptsetup, internal parts of lvm devices etc.)
 # See http://article.gmane.org/gmane.linux.hotplug.devel/15936
 Patch17: hal-0.5.15-ignore-device-requested-by-DM-udev-rules.patch
+
+# Forward port from RHEL5 to remove the ugly error when using an invalid UDI
+Patch29: hal-0.5.8.1-udi-not-exist-get-property.patch
+
+# Forward port from RHEL5 to get some configuration values from sysconfig.
+Patch40: hal-0.5.8.1-get-args-from-sysconfig.patch
 
 # Only allow users at the local console to manipulate devices.
 # Not required upstream anymore, as we're using ConsoleKit.
@@ -179,6 +185,8 @@ Storage polling support for HAL
 %patch15 -p1 -b .no-segfault-probe-input
 %patch16 -p1 -b .initscript-lsb
 %patch17 -p1 -b .ignore-device
+%patch29 -p1 -b .udi-not-exist
+%patch40 -p1 -b .get-args-from-sysconfig.patch
 %patch100 -p1 -b .drop-polkit
 
 autoreconf -i -f
@@ -327,6 +335,20 @@ fi
 %{_libexecdir}/hald-addon-storage
 
 %changelog
+* Fri Apr 01 2011 Richard Hughes <rhughes@redhat.com> - 0.5.14-11
+- Fix error message if a property is accessed on a non-existant UDI
+- Resolves: #676618
+
+* Tue Mar 29 2011 Richard Hughes <rhughes@redhat.com> - 0.5.14-10
+- Modify /etc/init.d/haldaemon to parse the /etc/sysconfig/haldaemon
+  config file in for extra parameters. This fixes the patch from -9.
+- Resolves: #576048
+
+* Tue Feb 01 2011 Richard Hughes <rhughes@redhat.com> - 0.5.14-9
+- Modify /etc/init.d/haldaemon to parse the /etc/sysconfig/haldaemon
+  config file in for extra parameters.
+- Resolves: #576048
+
 * Wed Jul 28 2010 Richard Hughes <rhughes@redhat.com> 0.5.14-8
 - Ignore internal DM devices with new DM udev rules.
 - Resolves: #613982
