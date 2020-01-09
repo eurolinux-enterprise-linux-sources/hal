@@ -25,7 +25,7 @@
 Summary: Hardware Abstraction Layer
 Name: hal
 Version: 0.5.14
-Release: 11%{?dist}
+Release: 14%{?dist}
 URL: http://www.freedesktop.org/Software/hal
 Source0: http://hal.freedesktop.org/releases/%{name}-%{version}.tar.bz2
 
@@ -72,6 +72,16 @@ Patch16: hal-0.5.15-make-initscript-lsb-compliant.patch
 # including temporary cryptsetup, internal parts of lvm devices etc.)
 # See http://article.gmane.org/gmane.linux.hotplug.devel/15936
 Patch17: hal-0.5.15-ignore-device-requested-by-DM-udev-rules.patch
+
+# Detect touchscreens and tag them as input.touchscreen (#1076664)
+# The patch mimics what udev does now, so we got the same rule in RHEL 6.
+Patch18: hal-add-touchscreen-detection.patch
+
+# Don't crash when running the probers directly (#755209)
+Patch19: hal-init-dbus-early-in-probers.patch
+
+# Don't crash when large numbers of devices are added and removed
+Patch20: hal-fix-segfault-while-probing.patch
 
 # Forward port from RHEL5 to remove the ugly error when using an invalid UDI
 Patch29: hal-0.5.8.1-udi-not-exist-get-property.patch
@@ -185,6 +195,9 @@ Storage polling support for HAL
 %patch15 -p1 -b .no-segfault-probe-input
 %patch16 -p1 -b .initscript-lsb
 %patch17 -p1 -b .ignore-device
+%patch18 -p1 -b .touchscreens
+%patch19 -p1 -b .dbus-init-probers
+%patch20 -p1 -b .prober-crash
 %patch29 -p1 -b .udi-not-exist
 %patch40 -p1 -b .get-args-from-sysconfig.patch
 %patch100 -p1 -b .drop-polkit
@@ -335,6 +348,19 @@ fi
 %{_libexecdir}/hald-addon-storage
 
 %changelog
+* Wed Jun 18 2014 Richard Hughes <rhughes@redhat.com> - 0.5.14-14
+- Don't crash when large numbers of devices are added and removed.
+- Resolves: #736415
+
+* Tue May 20 2014 Richard Hughes <rhughes@redhat.com> - 0.5.14-13
+- Initialize DBus errors correctly to resolve crashes when the probers are run
+  directly.
+- Resolves: #755209
+
+* Thu May 08 2014 Benjamin Tissoires <benjamin.tissoires@redhat.com> - 0.5.14-12
+- Detect touchscreens and tag them as input.touchscreen
+- Resolves: #1076664
+
 * Fri Apr 01 2011 Richard Hughes <rhughes@redhat.com> - 0.5.14-11
 - Fix error message if a property is accessed on a non-existant UDI
 - Resolves: #676618
